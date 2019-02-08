@@ -39,15 +39,11 @@ async function main()
   {
     pifacecad.open();
     pifacecad.lcd_backlight_on();
-    pifacecad.lcd_blink_off();
-    pifacecad.lcd_cursor_off();
     pifacecad.lcd_write('Hello World! ');
-
-
-    await sleep(500);
-    pifacecad.lcd_display(0);
-    await sleep(500);
-    pifacecad.lcd_display(1);
+    pifacecad.lcd_display(true);
+    pifacecad.lcd_blink(false);
+    pifacecad.lcd_cursor(false);
+    pifacecad.lcd_autoscroll(false);
     await sleep(500);
 
 

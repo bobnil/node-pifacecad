@@ -1,9 +1,6 @@
-OBJECTS = lib/libmcp23s17.a lib/libpifacecad.o
+OBJECTS = libmcp23s17/libmcp23s17.a libpifacecad/libpifacecad.a
 
-#distclean: clean
-#	rm -f $(BINARY)
-
-all: lib/libmcp23s17.a lib/libpifacecad.o
+all: $(OBJECTS)
 	node-gyp configure
 	node-gyp build
 
@@ -17,13 +14,9 @@ clean:
 	cd libmcp23s17 && make clean
 	cd libpifacecad && make clean
 
-lib/libmcp23s17.a:
-	cd libmcp23s17 && make && make install
+libmcp23s17/libmcp23s17.a:
+	cd libmcp23s17 && make
 
-lib/libpifacecad.o:
+libpifacecad/libpifacecad.a:
 	cd libpifacecad && make
-	#gcc -c -o ./lib/libpifacecad.o -Ilib/ ./src/pifacecad.c \
-	#&& ar rcs ./lib/libpifacecad.a ./lib/libpifacecad.o
-
-
 

@@ -1,26 +1,26 @@
 {
   "name": "node-pifacecad",
-  "version": "1.1.1",
+  "version": "1.5.0",
   "description": "control pifacecad with node",
   "main": "build/Release/pifacecad.node",
   "scripts": {
-    "install": "chmod +x ./install.sh && ./install.sh",
+    "install": "make",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/leajaeho/node-pifacecad.git"
+    "url": "git+https://github.com/bobnil/node-pifacecad.git"
   },
   "keywords": [
-    "piface", "raspberry pi", "pifacecad", "arm", "embedded", "gpio"
+    "piface", "raspberry pi", "pifacecad"
   ],
     "dependencies": {
     "nan": "2.10.*"
   },
-  "author": "leejaeho",
+  "author": "bobnil",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/leajaeho/node-pifacecad/issues"
+    "url": "https://github.com/bobnil/node-pifacecad/issues"
   },
-  "homepage": "https://github.com/leajaeho/node-pifacecad#readme"
+  "homepage": "https://github.com/bobnil/node-pifacecad/"
 }

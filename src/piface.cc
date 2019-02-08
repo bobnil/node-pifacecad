@@ -1,5 +1,6 @@
 #include <node.h>
 #include <v8.h>
+#include <nan.h>
 #include <pifacecad.h>
 
 #include <iostream>
@@ -42,7 +43,9 @@ void pifacecad_read_switch(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	args.GetReturnValue().Set(Number::New(isolate, pifacecad_read_switch(args[0]->NumberValue())));
+	args.GetReturnValue().Set( Number::New( isolate, pifacecad_read_switch(
+    args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked()
+  )));
 }
 
 void pifacecad_lcd_write(const FunctionCallbackInfo<Value> &args){
@@ -55,8 +58,9 @@ void pifacecad_lcd_write(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	String::Utf8Value test(args[0]->ToString());
-	args.GetReturnValue().Set(Number::New(isolate, pifacecad_lcd_write(ToCString(test))));
+  Nan::Utf8String test( args[0]->ToString(Nan::GetCurrentContext()).ToLocalChecked());
+	//args.GetReturnValue().Set(Number::New(isolate, pifacecad_lcd_write(ToCString(test))));
+	args.GetReturnValue().Set(Number::New(isolate, pifacecad_lcd_write(*test)));
 }
 
 void pifacecad_lcd_set_cursor(const FunctionCallbackInfo<Value> &args){
@@ -69,7 +73,10 @@ void pifacecad_lcd_set_cursor(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	args.GetReturnValue().Set(Number::New(isolate, pifacecad_lcd_set_cursor(args[0]->NumberValue(), args[1]->NumberValue())));
+	args.GetReturnValue().Set(Number::New(isolate, pifacecad_lcd_set_cursor(
+    args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked(),
+    args[1]->NumberValue(Nan::GetCurrentContext()).ToChecked()
+  )));
 }
 
 void pifacecad_lcd_set_cursor_address(const FunctionCallbackInfo<Value> &args){
@@ -82,7 +89,9 @@ void pifacecad_lcd_set_cursor_address(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	pifacecad_lcd_set_cursor_address(args[0]->NumberValue());
+	pifacecad_lcd_set_cursor_address(
+    args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked()
+  );
 	args.GetReturnValue().SetNull();
 }
 
@@ -97,6 +106,31 @@ void pifacecad_lcd_clear (const FunctionCallbackInfo<Value> &args){
 
 void pifacecad_lcd_home (const FunctionCallbackInfo<Value> &args){
 	pifacecad_lcd_home();
+	args.GetReturnValue().SetNull();
+}
+
+void pifacecad_lcd_display (const FunctionCallbackInfo<Value> &args){
+	Isolate* isolate = args.GetIsolate();
+	if(args.Length() != 1){
+		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong number of arguments")));
+		return;
+	}
+	if(!args[0]->IsNumber()){
+	//if(!args[0]->IsBoolean()){
+		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
+		return;
+	}
+	pifacecad_lcd_display(args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked());
+	args.GetReturnValue().SetNull();
+}
+
+void pifacecad_lcd_blink (const FunctionCallbackInfo<Value> &args){
+	args.GetReturnValue().SetNull();
+}
+void pifacecad_lcd_cursor (const FunctionCallbackInfo<Value> &args){
+	args.GetReturnValue().SetNull();
+}
+void pifacecad_lcd_autoscroll (const FunctionCallbackInfo<Value> &args){
 	args.GetReturnValue().SetNull();
 }
 
@@ -180,7 +214,9 @@ void pifacecad_lcd_write_custom_bitmap(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	pifacecad_lcd_write_custom_bitmap(args[0]->NumberValue());
+	pifacecad_lcd_write_custom_bitmap(
+    args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked()
+  );
 	args.GetReturnValue().SetNull();
 }
 
@@ -198,9 +234,12 @@ void pifacecad_lcd_store_custom_bitmap(const FunctionCallbackInfo<Value> &args){
 	unsigned int bitmapLength = bitmap->Length();
 	unsigned char *arr = new unsigned char[bitmapLength];
 	for(unsigned int i=0; i<bitmapLength; i++){
-		arr[i] = bitmap->Get(i)->NumberValue();
+		arr[i] = bitmap->Get(i)->NumberValue(Nan::GetCurrentContext()).ToChecked();
 	}
-	pifacecad_lcd_store_custom_bitmap(args[0]->NumberValue(), arr);
+	pifacecad_lcd_store_custom_bitmap(
+    args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked(),
+    arr
+  );
 	args.GetReturnValue().SetNull();
 	delete[] arr;
 }
@@ -215,7 +254,7 @@ void pifacecad_lcd_send_command(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	pifacecad_lcd_send_command(args[0]->NumberValue());
+	pifacecad_lcd_send_command(args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked());
 	args.GetReturnValue().SetNull();
 }
 
@@ -229,7 +268,7 @@ void pifacecad_lcd_send_data(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	pifacecad_lcd_send_data(args[0]->NumberValue());
+	pifacecad_lcd_send_data(args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked());
 	args.GetReturnValue().SetNull();
 }
 
@@ -243,7 +282,7 @@ void pifacecad_lcd_send_byte(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	pifacecad_lcd_send_byte(args[0]->NumberValue());
+	pifacecad_lcd_send_byte(args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked());
 	args.GetReturnValue().SetNull();
 }
 
@@ -257,7 +296,7 @@ void pifacecad_lcd_set_rs(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	pifacecad_lcd_set_rs(args[0]->NumberValue());
+	pifacecad_lcd_set_rs(args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked());
 	args.GetReturnValue().SetNull();
 }
 
@@ -271,7 +310,7 @@ void pifacecad_lcd_set_rw(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	pifacecad_lcd_set_rw(args[0]->NumberValue());
+	pifacecad_lcd_set_rw(args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked());
 	args.GetReturnValue().SetNull();
 }
 
@@ -285,7 +324,7 @@ void pifacecad_lcd_set_enable(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	pifacecad_lcd_set_enable(args[0]->NumberValue());
+	pifacecad_lcd_set_enable(args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked());
 	args.GetReturnValue().SetNull();
 }
 
@@ -299,7 +338,7 @@ void pifacecad_lcd_set_backlight(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	pifacecad_lcd_set_backlight(args[0]->NumberValue());
+	pifacecad_lcd_set_backlight(args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked());
 	args.GetReturnValue().SetNull();
 }
 
@@ -318,7 +357,10 @@ void colrow2address(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	args.GetReturnValue().Set(Number::New(isolate, colrow2address(args[0]->NumberValue(), args[1]->NumberValue())));
+	args.GetReturnValue().Set(Number::New(isolate, colrow2address(
+    args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked(),
+    args[1]->NumberValue(Nan::GetCurrentContext()).ToChecked()
+  )));
 }
 
 void address2col(const FunctionCallbackInfo<Value> &args){
@@ -331,7 +373,9 @@ void address2col(const FunctionCallbackInfo<Value> &args){
 		isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "wrong arguments")));
 		return;
 	}
-	args.GetReturnValue().Set(Number::New(isolate, address2col(args[0]->NumberValue())));
+	args.GetReturnValue().Set(Number::New(isolate, address2col(
+    args[0]->NumberValue(Nan::GetCurrentContext()).ToChecked()
+  )));
 }
 
 void Init(Local<Object> exports){
@@ -347,10 +391,13 @@ void Init(Local<Object> exports){
 	NODE_SET_METHOD(exports, "lcd_get_cursor_address", pifacecad_lcd_get_cursor_address);
 	NODE_SET_METHOD(exports, "lcd_clear", pifacecad_lcd_clear);
 	NODE_SET_METHOD(exports, "lcd_home", pifacecad_lcd_home);
+	NODE_SET_METHOD(exports, "lcd_display", pifacecad_lcd_display);
 	NODE_SET_METHOD(exports, "lcd_display_on", pifacecad_lcd_display_on);
 	NODE_SET_METHOD(exports, "lcd_display_off", pifacecad_lcd_display_off);
+	NODE_SET_METHOD(exports, "lcd_blink", pifacecad_lcd_blink);
 	NODE_SET_METHOD(exports, "lcd_blink_on", pifacecad_lcd_blink_on);
 	NODE_SET_METHOD(exports, "lcd_blink_off", pifacecad_lcd_blink_off);
+	NODE_SET_METHOD(exports, "lcd_cursor", pifacecad_lcd_cursor);
 	NODE_SET_METHOD(exports, "lcd_cursor_on", pifacecad_lcd_cursor_on);
 	NODE_SET_METHOD(exports, "lcd_cursor_off", pifacecad_lcd_cursor_off);
 	NODE_SET_METHOD(exports, "lcd_backlight_on", pifacecad_lcd_backlight_on);
@@ -359,6 +406,7 @@ void Init(Local<Object> exports){
 	NODE_SET_METHOD(exports, "lcd_move_right", pifacecad_lcd_move_right);
 	NODE_SET_METHOD(exports, "lcd_left_to_right", pifacecad_lcd_left_to_right);
 	NODE_SET_METHOD(exports, "lcd_right_to_left", pifacecad_lcd_right_to_left);
+	NODE_SET_METHOD(exports, "lcd_autoscroll", pifacecad_lcd_autoscroll);
 	NODE_SET_METHOD(exports, "lcd_autoscroll_on", pifacecad_lcd_autoscroll_on);
 	NODE_SET_METHOD(exports, "lcd_autoscroll_off", pifacecad_lcd_autoscroll_off);
 	NODE_SET_METHOD(exports, "lcd_write_custom_bitmap", pifacecad_lcd_write_custom_bitmap);

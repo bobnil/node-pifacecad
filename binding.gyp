@@ -1,12 +1,15 @@
 {
   "targets": [{
     "target_name": "pifacecad",
-    "sources": ["piface.cc"],
-    "include_dirs": ["./src/"],
+    "sources": ["src/piface.cc"],
+    "include_dirs": [
+      "<!(node -e \"require('nan')\")",
+      "./libpifacecad/src/"
+    ],
     "link_settings": {
       "libraries": [
-        "../lib/libpifacecad.a",
-        "../lib/libmcp23s17.a"
+        "../libpifacecad/libpifacecad.a",
+        "../libmcp23s17/libmcp23s17.a"
       ]
     },
     "cflags": ["-std=c++11"]
